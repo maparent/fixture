@@ -122,7 +122,7 @@ class SQLAlchemyHandler(DataHandler):
                         psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
             ################################################
         
-        Session = scoped_session(sessionmaker(autoflush=True, transactional=False, bind=self.engine))
+        Session = scoped_session(sessionmaker(autoflush=True, bind=self.engine))
         self.session = Session()
         
         self.env = TableEnv(*[self.obj.__module__] + self.options.env)
@@ -178,15 +178,14 @@ class SQLAlchemyHandler(DataHandler):
 class SQLAlchemyMappedClassBase(SQLAlchemyHandler):
     class RecordSetAdapter(SQLAlchemyHandler.RecordSetAdapter):
         def __init__(self, obj):
-            self.columns = obj.c
-            
             # could grab this from the Handler :
-            from sqlalchemy.orm.mapper import object_mapper
+            from sqlalchemy.orm import object_mapper
             self.mapper = object_mapper(obj())
+            self.columns = self.mapper.c
             
-            if self.mapper.local_table:
+            if self.mapper.local_table is not None:
                 self.table = self.mapper.local_table
-            elif self.mapper.select_table:
+            elif self.mapper.select_table is not None:
                 self.table = self.mapper.select_table
             else:
                 raise LookupError(
@@ -201,12 +200,12 @@ class SQLAlchemyMappedClassBase(SQLAlchemyHandler):
     def __init__(self, *args, **kw):
         super(SQLAlchemyMappedClassBase, self).__init__(*args, **kw)
         
-        from sqlalchemy.orm.mapper import class_mapper
+        from sqlalchemy.orm import class_mapper
         self.mapper = class_mapper(self.obj)
         
-        if self.mapper.local_table:
+        if self.mapper.local_table is not None:
             self.table = self.mapper.local_table
-        elif self.mapper.select_table:
+        elif self.mapper.select_table is not None:
             self.table = self.mapper.select_table
         else:
             raise LookupError(
@@ -364,9 +363,6 @@ class SQLAlchemyFixtureSet(FixtureSet):
             return None
             
         if foreign_key:
-            from sqlalchemy.ext.assignmapper import assign_mapper
-            from sqlalchemy.ext.sqlsoup import class_for_table
-                
             table = foreign_key.column.table
             stmt = table.select(getattr(table.c, foreign_key.column.key)==value)
             rs = self.connection.execute(stmt)

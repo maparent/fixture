@@ -357,14 +357,14 @@ class EnvLoadableFixture(LoadableFixture):
         
             if hasattr(self.env, 'get'):
                 storable = self.env.get(ds.meta.storable_name, None)
-            if not storable:
+            if storable is None:
                 if hasattr(self.env, ds.meta.storable_name):
                     try:
                         storable = getattr(self.env, ds.meta.storable_name)
                     except AttributeError:
                         pass
         
-            if not storable:
+            if storable is None:
                 repr_env = repr(type(self.env))
                 if hasattr(self.env, '__module__'):
                     repr_env = "%s from '%s'" % (repr_env, self.env.__module__)

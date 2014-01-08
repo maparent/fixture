@@ -152,7 +152,7 @@ def shell(
     output = "".join(output)
         
     include_lines = statemachine.string2lines(output)
-    state_machine.insert_input(include_lines, None)
+    state_machine.insert_input(include_lines, '')
     return []
 
 shell.arguments = (0, 0, 1)
@@ -188,18 +188,18 @@ def setup_command_data():
     metadata.create_all()
     orm.mapper(Book, books)
     orm.mapper(Author, authors, properties={'books': orm.relation(Book, backref='author')})
-    Session = orm.sessionmaker(bind=metadata.bind, autoflush=True, transactional=True)
+    Session = orm.sessionmaker(bind=metadata.bind, autoflush=True)
     session = Session()
 
     frank = Author()
     frank.first_name = "Frank"
     frank.last_name = "Herbert"
-    session.save(frank)
+    session.add(frank)
 
     dune = Book()
     dune.title = "Dune"
     dune.author = frank
-    session.save(dune)
+    session.add(dune)
 
     session.commit()
     

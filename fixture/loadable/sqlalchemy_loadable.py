@@ -23,7 +23,7 @@ else:
     import sqlalchemy
     sa_major = float(sqlalchemy.__version__[:3]) # i.e. 0.4 or 0.5
     if sa_major < 0.5:
-        Session = scoped_session(sessionmaker(autoflush=False, transactional=True), scopefunc=lambda:__name__)
+        Session = scoped_session(sessionmaker(autoflush=False), scopefunc=lambda:__name__)
     else:
         Session = scoped_session(sessionmaker(autoflush=False, autocommit=False), scopefunc=lambda:__name__)
 
@@ -162,7 +162,7 @@ class SQLAlchemyFixture(DBLoadableFixture):
             log.debug("connection.begin()")
             transaction = self.connection.begin()
         else:
-            transaction = self.session.begin()
+            transaction = self.session.begin(subtransactions=True)
         log.debug("create_transaction() <- %s", transaction)
         return transaction
     
