@@ -132,11 +132,8 @@ class SQLAlchemyFixture(DBLoadableFixture):
         if self.engine is not None and self.connection is None:
             self.connection = self.engine.connect()
         
-        if self.session is None:
-            if self.connection:
-                self.session = self.Session(bind=self.connection)
-            else:
-                self.session = self.Session(bind=None)
+        if self.session is None and self.Session is not None:
+            self.session = self.Session()
             
         DBLoadableFixture.begin(self, unloading=unloading)
     
@@ -230,9 +227,7 @@ class MappedClassMedium(DBLoadableFixture.StorageMediumAdapter):
         
     def save(self, row, column_vals):
         """Save a new object to the session if it doesn't already exist in the session."""
-        obj = self.medium()
-        for c, val in column_vals:
-            setattr(obj, c, val)
+        obj = self.medium(**dict(column_vals))
         if obj not in self.session.new:
             if hasattr(self.session, 'add'):
                 # sqlalchemy 0.5.2+
