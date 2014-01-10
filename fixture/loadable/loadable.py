@@ -309,10 +309,11 @@ class LoadableFixture(Fixture):
             try:
                 routine()
             except:
+                import traceback; traceback.print_exc();
                 self.rollback()
                 raise
             else:
-                self.commit()
+                pass  #self.commit()
         finally:
             self.then_finally(unloading=unloading)
 
