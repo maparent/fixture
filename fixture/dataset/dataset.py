@@ -282,9 +282,11 @@ class DataRow(object):
         if name.startswith('_'):
             return object.__getattribute__(self, name)
         
-        obj = self._dataset.meta._stored_objects.get_object(self._key)
-        return getattr(obj, name)
+        return getattr(self._stored_object(), name)
     
+    def _stored_object(self):
+        return self._dataset.meta._stored_objects.get_object(self._key)
+
     @classmethod
     def columns(self):
         """Classmethod that yields all attribute names (except reserved attributes) 
