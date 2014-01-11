@@ -219,7 +219,8 @@ class MappedClassMedium(DBLoadableFixture.StorageMediumAdapter):
         
     def clear(self, obj):
         """Delete this object from the session"""
-        self.session.delete(obj)
+        # MAP: This is handled otherwise now.
+        #self.session.delete(obj)
     
     def visit_loader(self, loader):
         """Visits the :class:`SQLAlchemyFixture` loader and stores a reference to its session"""
